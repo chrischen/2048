@@ -3,6 +3,8 @@ function HTMLActuator() {
   this.scoreContainer   = document.querySelector(".score-container");
   this.bestContainer    = document.querySelector(".best-container");
   this.messageContainer = document.querySelector(".game-message");
+  this.roomInput        = document.querySelector(".room-input");
+  this.currentPlayer    = document.querySelector(".current-player");
 
   this.score = 0;
 }
@@ -12,6 +14,8 @@ HTMLActuator.prototype.actuate = function (grid, metadata) {
 
   window.requestAnimationFrame(function () {
     self.clearContainer(self.tileContainer);
+    self.roomInput.value = 'https://instapainting.com/2x2048.html#' + metadata.roomID;
+    self.currentPlayer.textContent = metadata.currentPlayer ? 'Red\'s turn' : 'Blue\'s turn';
 
     grid.cells.forEach(function (column) {
       column.forEach(function (cell) {
@@ -26,12 +30,11 @@ HTMLActuator.prototype.actuate = function (grid, metadata) {
 
     if (metadata.terminated) {
       if (metadata.over) {
-        self.message(false); // You lose
+        self.message(false, metadata.winner); // You lose
       } else if (metadata.won) {
-        self.message(true); // You win!
+        self.message(true, metadata.winner); // You win!
       }
     }
-
   });
 };
 
@@ -86,6 +89,11 @@ HTMLActuator.prototype.addTile = function (tile) {
   // Add the inner part of the tile to the wrapper
   wrapper.appendChild(inner);
 
+  if (tile.player === 0)
+    inner.style.color = 'blue';
+  else
+    inner.style.color = 'red';
+
   // Put the tile on the board
   this.tileContainer.appendChild(wrapper);
 };
@@ -124,9 +132,9 @@ HTMLActuator.prototype.updateBestScore = function (bestScore) {
   this.bestContainer.textContent = bestScore;
 };
 
-HTMLActuator.prototype.message = function (won) {
+HTMLActuator.prototype.message = function (won, winner) {
   var type    = won ? "game-won" : "game-over";
-  var message = won ? "You win!" : "Game over!";
+  var message = won ? (winner ? 'Red' : 'Blue') + " wins!" : "Game over! " + (winner ? 'Red wins!' : 'Blue wins!');
 
   this.messageContainer.classList.add(type);
   this.messageContainer.getElementsByTagName("p")[0].textContent = message;

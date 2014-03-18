@@ -3,7 +3,7 @@
 
 $field-width: 500px;
 $grid-spacing: 15px;
-$grid-row-cells: 4;
+$grid-row-cells: 5;
 $tile-size: ($field-width - $grid-spacing * ($grid-row-cells + 1)) / $grid-row-cells;
 $tile-border-radius: 3px;
 
@@ -58,6 +58,29 @@ h1.title {
     top: -50px;
     opacity: 0;
   }
+}
+
+.room-link {
+  padding: 15px 15px;
+  background: $game-container-background;
+  color: white;
+  border-radius: 3px;
+  .room-input {
+    border-radius: 3px;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: 10px 14px;
+    background: $tile-color;
+    border: 0;
+    font-size: 22px;
+    width: 100%;
+  }
+}
+
+.current-player {
+  text-align: center;
+  margin-top: 42px;
 }
 
 .scores-container {

@@ -18,11 +18,11 @@ Grid.prototype.build = function () {
 };
 
 // Find the first available random position
-Grid.prototype.randomAvailableCell = function () {
+Grid.prototype.randomAvailableCell = function (seed) {
   var cells = this.availableCells();
 
   if (cells.length) {
-    return cells[Math.floor(Math.random() * cells.length)];
+    return cells[Math.floor((seed ? seed : Math.random()) * cells.length)];
   }
 };
 
@@ -81,4 +81,19 @@ Grid.prototype.removeTile = function (tile) {
 Grid.prototype.withinBounds = function (position) {
   return position.x >= 0 && position.x < this.size &&
          position.y >= 0 && position.y < this.size;
+};
+
+Grid.prototype.serialize = function () {
+  var serialized = [];
+  this.eachCell(function(x, y, tile) {
+    if (tile)
+      serialized.push([x,y,tile.value, tile.player]);
+  });
+  return serialized;
+};
+
+Grid.prototype.deserialize = function(grid) {
+  for (var x = 0; x < grid.length; x++) {
+    this.insertTile(new Tile({x: grid[x][0], y: grid[x][1]}, grid[x][2], grid[x][3]));
+  }
 };

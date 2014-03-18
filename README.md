@@ -1,7 +1,7 @@
 # 2x2048
 A small clone of [2048](https://github.com/gabrielecirulli/2048) with added two-player mode.
 
-Made just for fun. [Play it here!](https:/instapainting.com/2x2048/index.html)
+Made just for fun. [Play it here!](https//instapainting.com/2x2048/index.html)
 
 ### Contributions
 

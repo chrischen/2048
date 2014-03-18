@@ -14,7 +14,7 @@ HTMLActuator.prototype.actuate = function (grid, metadata) {
 
   window.requestAnimationFrame(function () {
     self.clearContainer(self.tileContainer);
-    self.roomInput.value = 'https://instapainting.com/2x2048.html#' + metadata.roomID;
+    self.roomInput.value = 'https://instapainting.com/2x2048/index.html#' + metadata.roomID;
     self.currentPlayer.textContent = metadata.currentPlayer ? 'Red\'s turn' : 'Blue\'s turn';
 
     grid.cells.forEach(function (column) {

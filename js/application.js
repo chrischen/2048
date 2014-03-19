@@ -26,9 +26,10 @@ window.requestAnimationFrame(function () {
     peer.on('connection', function(conn) {
       window.connection = conn;
       conn.on('data', function(data){
-        if (data.connected)
-          conn.send({state: window.Game.grid.serialize()});
+        if (data.connected) {
           window.Game = new GameManager(5, KeyboardInputManager, HTMLActuator, LocalScoreManager, conn.id);
+          conn.send({state: window.Game.grid.serialize()});
+        }
         if (data.move !== undefined) {
           window.Game.move.apply(window.Game, [data.move, true]);
         }

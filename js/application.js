@@ -21,13 +21,13 @@ window.requestAnimationFrame(function () {
   } else {
     var peer = new Peer({key: 'tu24ikh5mq0bpgb9'});
     peer.on('open', function(id){
-      window.Game = new GameManager(5, KeyboardInputManager, HTMLActuator, LocalScoreManager, id);
     });
     peer.on('connection', function(conn) {
       window.connection = conn;
       conn.on('data', function(data){
         if (data.connected)
           conn.send({state: window.Game.grid.serialize()});
+          window.Game = new GameManager(5, KeyboardInputManager, HTMLActuator, LocalScoreManager, conn.id);
         if (data.move !== undefined) {
           window.Game.move.apply(window.Game, [data.move, true]);
         }

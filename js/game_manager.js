@@ -127,14 +127,14 @@ GameManager.prototype.moveTile = function (tile, cell) {
 
 // Move tiles on the grid in the specified direction
 GameManager.prototype.move = function (direction, nosend) {
+  if (this.continueGame)
+    return;
   if (this.currentPlayer === 0 && this.state && !nosend) {
     return;
   } else if (this.currentPlayer === 1 && !this.state && !nosend) {
     return;
   }
 
-  if (!nosend)
-    window.connection.send({move: direction});
   // 0: up, 1: right, 2:down, 3: left
   var self = this;
 
@@ -192,8 +192,9 @@ GameManager.prototype.move = function (direction, nosend) {
   if (moved) {
     this.currentPlayer = this.currentPlayer + 1 < this.players ? this.currentPlayer+1 : 0;
     var seed = Math.random();
-    this.continueGame = function(_seed){
-      if (self.state)
+    self.continueGame = function(_seed){
+      // Respond with seed
+      if (nosend)
         window.connection.send({seed: seed});
 
       self.addRandomTile((_seed + seed) / 2);
@@ -203,9 +204,12 @@ GameManager.prototype.move = function (direction, nosend) {
       }
 
       self.actuate();
+      self.continueGame = null;
     };
-    if (!this.state)
-      window.connection.send({seed: seed});
+
+    if (!nosend)
+      // @TODO: Move sent. Should only expect seed back, not move
+      window.connection.send({move: direction, seed: seed});
   }
 };
 

@@ -21,6 +21,7 @@ window.requestAnimationFrame(function () {
   } else {
     var peer = new Peer({key: 'tu24ikh5mq0bpgb9'});
     peer.on('open', function(id){
+      document.querySelector(".room-input").value = 'https://instapainting.com/2x2048/index.html#' + id;
     });
     peer.on('connection', function(conn) {
       window.connection = conn;

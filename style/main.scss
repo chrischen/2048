@@ -130,8 +130,11 @@ h1.title {
   }
 }
 
-.score-container:after {
-  content: "Score";
+.blue-score-container:after {
+  content: "Blue";
+}
+.red-score-container:after {
+  content: "Red";
 }
 
 .best-container:after {
@@ -378,7 +381,8 @@ hr {
       $nth-color: nth($special-colors, $exponent);
 
       $special-background: nth($nth-color, 1);
-      $bright-color: nth($nth-color, 2);
+      // $bright-color: nth($nth-color, 2);
+      $bright-color: true;
 
       @if $special-background {
         $mixed-background: mix($special-background, $mixed-background, 55%);

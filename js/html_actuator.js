@@ -1,12 +1,12 @@
 function HTMLActuator() {
   this.tileContainer    = document.querySelector(".tile-container");
-  this.scoreContainer   = document.querySelector(".score-container");
+  this.scoreContainers  = [document.querySelector(".blue-score-container"), document.querySelector(".red-score-container")];
   this.bestContainer    = document.querySelector(".best-container");
   this.messageContainer = document.querySelector(".game-message");
   this.roomInput        = document.querySelector(".room-input");
   this.currentPlayer    = document.querySelector(".current-player");
 
-  this.score = 0;
+  this.scores = {};
 }
 
 HTMLActuator.prototype.actuate = function (grid, metadata) {
@@ -14,7 +14,9 @@ HTMLActuator.prototype.actuate = function (grid, metadata) {
 
   window.requestAnimationFrame(function () {
     self.clearContainer(self.tileContainer);
-    self.roomInput.value = 'https://instapainting.com/2x2048/index.html#' + metadata.roomID;
+
+    if (self.roomInput)
+      self.roomInput.value = 'http://instapainting.com/2x2048/index.html#' + metadata.roomID;
     self.currentPlayer.textContent = metadata.currentPlayer ? 'Red\'s turn' : 'Blue\'s turn';
 
     grid.cells.forEach(function (column) {
@@ -25,14 +27,14 @@ HTMLActuator.prototype.actuate = function (grid, metadata) {
       });
     });
 
-    self.updateScore(metadata.score);
-    self.updateBestScore(metadata.bestScore);
+    self.updateScores(metadata.scores);
+    // self.updateBestScore(metadata.bestScore);
 
     if (metadata.terminated) {
       if (metadata.over) {
-        self.message(false, metadata.winner); // You lose
+        self.message(false, metadata.winners); // You lose
       } else if (metadata.won) {
-        self.message(true, metadata.winner); // You win!
+        self.message(true, metadata.winners); // You win!
       }
     }
   });
@@ -90,9 +92,9 @@ HTMLActuator.prototype.addTile = function (tile) {
   wrapper.appendChild(inner);
 
   if (tile.player === 0)
-    inner.style.color = 'blue';
+    inner.style.background = '#b8d6f0'; // Blue
   else
-    inner.style.color = 'red';
+    inner.style.background = '#e8a8a8'; // Red
 
   // Put the tile on the board
   this.tileContainer.appendChild(wrapper);
@@ -111,20 +113,24 @@ HTMLActuator.prototype.positionClass = function (position) {
   return "tile-position-" + position.x + "-" + position.y;
 };
 
-HTMLActuator.prototype.updateScore = function (score) {
-  this.clearContainer(this.scoreContainer);
+HTMLActuator.prototype.updateScores = function (scores) {
 
-  var difference = score - this.score;
-  this.score = score;
+  var score;
+  for (var x = 0; x < scores.length; x++) {
+    this.clearContainer(this.scoreContainers[x]);
+    score = scores[x];
+    var difference = score - this.scores[x];
+    this.scores[x] = score;
 
-  this.scoreContainer.textContent = this.score;
+    this.scoreContainers[x].textContent = this.scores[x];
 
-  if (difference > 0) {
-    var addition = document.createElement("div");
-    addition.classList.add("score-addition");
-    addition.textContent = "+" + difference;
+    if (difference > 0) {
+      var addition = document.createElement("div");
+      addition.classList.add("score-addition");
+      addition.textContent = "+" + difference;
 
-    this.scoreContainer.appendChild(addition);
+      this.scoreContainers[x].appendChild(addition);
+    }
   }
 };
 
@@ -132,9 +138,13 @@ HTMLActuator.prototype.updateBestScore = function (bestScore) {
   this.bestContainer.textContent = bestScore;
 };
 
-HTMLActuator.prototype.message = function (won, winner) {
+HTMLActuator.prototype.message = function (won, winners) {
   var type    = won ? "game-won" : "game-over";
-  var message = won ? (winner ? 'Red' : 'Blue') + " wins!" : "Game over! " + (winner ? 'Red wins!' : 'Blue wins!');
+  var message;
+  if (winners.length === 2)
+    message = 'It\'s a tie!';
+  else
+    message = (winners[0] ? 'Red' : 'Blue') + " wins!";
 
   this.messageContainer.classList.add(type);
   this.messageContainer.getElementsByTagName("p")[0].textContent = message;

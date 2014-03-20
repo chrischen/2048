@@ -1,4 +1,4 @@
-function GameManager(size, InputManager, Actuator, ScoreManager, PeerID, state) {
+function GameManager(size, InputManager, Actuator, ScoreManager, PeerID, player, state) {
   this.size           = size; // Size of the grid
   this.inputManager   = new InputManager;
   this.scoreManager   = new ScoreManager;
@@ -6,6 +6,7 @@ function GameManager(size, InputManager, Actuator, ScoreManager, PeerID, state) 
   this.players        = 2;
   this.peerID         = PeerID;
   this.state          = state || null;
+  this.player         = player;
 
   this.startTiles   = 2;
 
@@ -20,6 +21,11 @@ function GameManager(size, InputManager, Actuator, ScoreManager, PeerID, state) 
 GameManager.prototype.restart = function () {
   this.actuator.continue();
   this.setup();
+
+  if (this.state)
+    window.connection.send({connected: true});
+  else
+    window.connection.send({state: { grid: this.grid.serialize(), currentPlayer: this.currentPlayer, scores: this.scores }});
 };
 
 // Keep playing after winning
@@ -43,9 +49,21 @@ GameManager.prototype.setup = function () {
   this.score       = 0;
   this.over        = false;
   this.won         = false;
-  this.winner      = null;
+  this.winners      = null;
   this.keepPlaying = false;
+  this.scores      = [];
   this.currentPlayer = 0;
+
+  if (this.state) {
+    this.currentPlayer = this.state.currentPlayer;
+    this.scores = this.state.scores;
+  }
+
+  // initialize scores
+  if (this.scores.length === 0)
+    for (var x = 0; x < this.players; x++) {
+      this.scores[x] = 0;
+    }
 
   // Add the initial tiles
   this.addStartTiles();
@@ -57,13 +75,14 @@ GameManager.prototype.setup = function () {
 // Set up the initial tiles to start the game with
 GameManager.prototype.addStartTiles = function () {
   if (this.state) {
-    this.grid.deserialize(this.state);
-  } else
+    this.grid.deserialize(this.state.grid);
+  } else {
     for (var i = 0; i < this.players; i++) {
       this.addRandomTile();
       this.currentPlayer++;
     }
-  this.currentPlayer = 0;
+    this.currentPlayer = 0;
+  }
 };
 
 // Adds a tile in a random position
@@ -74,6 +93,7 @@ GameManager.prototype.addRandomTile = function (seed) {
     var value = seed < 0.9 ? 2 : 4;
     var tile = new Tile(this.grid.randomAvailableCell(seed), value, this.currentPlayer);
     this.grid.insertTile(tile);
+    this.scores[tile.player] += tile.value;
   }
 };
 
@@ -96,14 +116,15 @@ GameManager.prototype.actuate = function () {
   }
 
   this.actuator.actuate(this.grid, {
-    score:      this.score,
+    scores:     this.scores,
     over:       this.over,
     won:        this.won,
-    winner:     this.winner,
+    winners:    this.winners,
     bestScore:  this.scoreManager.get(),
     terminated: this.isGameTerminated(),
     roomID:     this.peerID,
-    currentPlayer: this.currentPlayer
+    currentPlayer: this.currentPlayer,
+    player:     this.player
   });
 
 };
@@ -129,9 +150,8 @@ GameManager.prototype.moveTile = function (tile, cell) {
 GameManager.prototype.move = function (direction, nosend) {
   if (this.continueGame)
     return;
-  if (this.currentPlayer === 0 && this.state && !nosend) {
-    return;
-  } else if (this.currentPlayer === 1 && !this.state && !nosend) {
+
+  if (this.currentPlayer != this.player && !nosend) {
     return;
   }
 
@@ -139,6 +159,7 @@ GameManager.prototype.move = function (direction, nosend) {
   var self = this;
 
   if (this.isGameTerminated()) return; // Don't do anything if the game's over
+  console.log('move');
 
   var cell, tile;
 
@@ -171,12 +192,16 @@ GameManager.prototype.move = function (direction, nosend) {
           tile.updatePosition(positions.next);
 
           // Update the score
+          if (next.player !== tile.player) {
+            self.scores[next.player] += (next.player === merged.player ? 1 : -1) * tile.value;
+            self.scores[tile.player] += (tile.player === merged.player ? 1 : -1) * tile.value;
+          }
           self.score += merged.value;
 
           // The mighty 2048 tile
           if (merged.value === 2048) {
             self.won = true;
-            self.winner = self.currentPlayer;
+            self.winners = [self.currentPlayer];
           }
         } else {
           self.moveTile(tile, positions.farthest);
@@ -200,16 +225,22 @@ GameManager.prototype.move = function (direction, nosend) {
       self.addRandomTile((_seed + seed) / 2);
       if (!self.movesAvailable()) {
         self.over = true; // Game over!
-        self.winner = self.currentPlayer;
+
+        self.winners = [];
+        var highest = Math.max.apply(null, self.scores);
+        for (var x = 0; x < self.scores.length; x++) {
+          if (self.scores[x] === highest)
+            self.winners.push(x);
+        }
       }
 
       self.actuate();
       self.continueGame = null;
     };
 
-    if (!nosend)
-      // @TODO: Move sent. Should only expect seed back, not move
+    if (!nosend) {
       window.connection.send({move: direction, seed: seed});
+    }
   }
 };
 

@@ -49,6 +49,14 @@ h1.title {
     top: -50px;
     opacity: 0; } }
 
+.btn {
+  padding: 15px;
+  background: #bbada0;
+  color: #fff;
+  display: inline-block;
+  text-decoration: none;
+  border-radius: 3px; }
+
 .room-link {
   padding: 15px 15px;
   background: #bbada0;

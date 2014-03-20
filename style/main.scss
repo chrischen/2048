@@ -60,6 +60,14 @@ h1.title {
   }
 }
 
+.btn {
+  padding: 15px;
+  background: $game-container-background;
+  color: #fff;
+  display: inline-block;
+  text-decoration: none;
+  border-radius: 3px;
+}
 .room-link {
   padding: 15px 15px;
   background: $game-container-background;

@@ -159,7 +159,6 @@ GameManager.prototype.move = function (direction, nosend) {
   var self = this;
 
   if (this.isGameTerminated()) return; // Don't do anything if the game's over
-  console.log('move');
 
   var cell, tile;
 

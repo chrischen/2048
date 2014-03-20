@@ -33,7 +33,7 @@ window.requestAnimationFrame(function () {
     }
   };
 
-  var peer = new Peer({key: 'tu24ikh5mq0bpgb9'});
+  var peer = new Peer({host: '54.243.51.247', port: 9005});
 
   if (window.location.hash) {
     document.querySelector(".room-link").remove();

@@ -2,8 +2,8 @@
 window.requestAnimationFrame(function () {
   if (window.location.hash) {
     var peer = new Peer({key: 'tu24ikh5mq0bpgb9'});
-    // var conn = peer.connect(window.location.hash.slice(1));
-    var conn = peer.connect('f8ny3489yovgwh8ab1', {reliable: true});
+    var conn = peer.connect(window.location.hash.slice(1), {reliable: true});
+    // var conn = peer.connect('f8ny3489yovgwh8ab1', {reliable: true});
     window.connection = conn;
     conn.on('open', function(){
       conn.send({connected: true});
@@ -33,8 +33,8 @@ window.requestAnimationFrame(function () {
       });
     });
   } else {
-    var peer = new Peer('f8ny3489yovgwh8ab1', {key: 'tu24ikh5mq0bpgb9'});
-    peer.on('open', function(id){
+    var peer = new Peer({key: 'tu24ikh5mq0bpgb9'});
+    peer.on('open', function(id) {
       document.querySelector(".room-input").value = 'https://instapainting.com/2x2048/index.html#' + id;
     });
     peer.on('connection', function(conn) {

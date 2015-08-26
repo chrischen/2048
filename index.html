@@ -18,9 +18,12 @@
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
   })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-  ga('create', 'UA-47131262-1', 'instapainting.com');
+  ga('create', 'UA-47131262-3', 'auto');
   ga('send', 'pageview');
 
+  if (top.location != location) {
+    top.location.href = document.location.href ;
+  }
   </script>
 </head>
 <body>

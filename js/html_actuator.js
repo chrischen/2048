@@ -1,6 +1,7 @@
+// The main things added to this are score calculation and display code and displaying a link to share for an opponent to connect
 function HTMLActuator() {
   this.tileContainer    = document.querySelector(".tile-container");
-  this.scoreContainers  = [document.querySelector(".blue-score-container"), document.querySelector(".red-score-container")];
+  this.scoreContainers  = [document.querySelector(".blue-score-container"), document.querySelector(".red-score-container")]; // Simply an HTML container to hold and display the score of each player
   this.bestContainer    = document.querySelector(".best-container");
   this.messageContainer = document.querySelector(".game-message");
   this.roomInput        = document.querySelector(".room-input");

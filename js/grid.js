@@ -87,7 +87,7 @@ Grid.prototype.serialize = function () {
   var serialized = [];
   this.eachCell(function(x, y, tile) {
     if (tile)
-      serialized.push([x,y,tile.value, tile.player]);
+      serialized.push([x,y,tile.value, tile.player]); // we've added the tile player ownership to the the serialize function
   });
   return serialized;
 };

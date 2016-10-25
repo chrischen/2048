@@ -1,3 +1,4 @@
+// This contains the bulk of the modified game logic to support n players, where n=2 currently. The networking code would still need to be updated to actually support more than 2 players
 function GameManager(size, InputManager, Actuator, ScoreManager, PeerID, player, state) {
   this.size           = size; // Size of the grid
   this.inputManager   = new InputManager;
@@ -52,7 +53,7 @@ GameManager.prototype.setup = function () {
   this.winners      = null;
   this.keepPlaying = false;
   this.scores      = [];
-  this.currentPlayer = 0;
+  this.currentPlayer = 0; // We've added this variable to keep track of the current player who's taking a turn
 
   if (this.state) {
     this.currentPlayer = this.state.currentPlayer;
@@ -79,7 +80,7 @@ GameManager.prototype.addStartTiles = function () {
   } else {
     for (var i = 0; i < this.players; i++) {
       this.addRandomTile();
-      this.currentPlayer++;
+      this.currentPlayer++; // We're splitting the available tiles between two players
     }
     this.currentPlayer = 0;
   }
@@ -93,7 +94,7 @@ GameManager.prototype.addRandomTile = function (seed) {
     var value = seed < 0.9 ? 2 : 4;
     var tile = new Tile(this.grid.randomAvailableCell(seed), value, this.currentPlayer);
     this.grid.insertTile(tile);
-    this.scores[tile.player] += tile.value;
+    this.scores[tile.player] += tile.value; // The total score is the sum of all tiles owned by a specific player
   }
 };
 
@@ -181,7 +182,7 @@ GameManager.prototype.move = function (direction, nosend) {
 
         // Only one merger per row traversal?
         if (next && next.value === tile.value && !next.mergedFrom) {
-          var merged = new Tile(positions.next, tile.value * 2, (tile.player === self.currentPlayer || next.player === self.currentPlayer) ? self.currentPlayer : tile.player);
+          var merged = new Tile(positions.next, tile.value * 2, (tile.player === self.currentPlayer || next.player === self.currentPlayer) ? self.currentPlayer : tile.player); // Merging logic here gives ownership of merged tile to the current player who did the merging
           merged.mergedFrom = [tile, next];
 
           self.grid.insertTile(merged);
@@ -214,7 +215,7 @@ GameManager.prototype.move = function (direction, nosend) {
   });
 
   if (moved) {
-    this.currentPlayer = this.currentPlayer + 1 < this.players ? this.currentPlayer+1 : 0;
+    this.currentPlayer = this.currentPlayer + 1 < this.players ? this.currentPlayer+1 : 0; // Switch turns to the next player
     var seed = Math.random();
     self.continueGame = function(_seed){
       // Respond with seed

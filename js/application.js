@@ -1,6 +1,7 @@
 // Wait till the browser is ready to render the game (avoids glitches)
 window.requestAnimationFrame(function () {
   var handleData = function(data){
+    // This function handles game state once a connection is established with a peer
     if (window.connTimeout) {
       clearTimeout(window.connTimeout);
       window.connTimeout = null;
@@ -18,6 +19,7 @@ window.requestAnimationFrame(function () {
           window.location.href = 'index.html';
         }
       } else {
+        // Player is available and connected. Start a game!
         window.inGame = true;
         window.Game = new GameManager(4, KeyboardInputManager, HTMLActuator, LocalScoreManager, window.location.hash.slice(1), 1, data.state);
       }
@@ -69,16 +71,19 @@ window.requestAnimationFrame(function () {
       }
     }
   };
+  // Matchmaking is fairly hacky, but manages to work without a central server (other than the PeerJS broker)
   function findMatch() {
     var peers = window.peerList;
     if (!window.inGame) {
       if (peers[window.peerx]) {
-        if (peers[window.peerx] !== window.connectionId) {
+        if (peers[window.peerx] !== window.connectionId) { // Check to make sure we aren't connecting to ourself
+          var timeout = 150; // Because many the window.peerList list is stagnant, it can contain many dead clients. A low timeout value is set so the whole list can be scanned faster.
           if (window.connTimeout) {
             window.connection.close();
             clearTimeout(window.connTimeout);
             window.connTimeout = null;
           }
+          // Connecto to the peer
           window.connection = peer.connect(peers[window.peerx], {reliable: true});
           window.connection.on('open', function(){
             if (window.connTimeout) {
@@ -93,19 +98,20 @@ window.requestAnimationFrame(function () {
                 window.connection.close();
                 window.peerx += 1;
                 findMatch();
-              }, 3000);
+              }, timeout);
           });
           window.connTimeout = setTimeout(function(){
             window.connTimeout = null;
             window.connection.close();
             window.peerx += 1;
             findMatch();
-          }, 3000);
+          }, timeout);
         } else {
           window.peerx += 1;
-          findMatch();
+          findMatch(); // Recursively find a peer until we succeed
         }
       } else {
+        // If we've exhausted all peers, refresh the list and try again
         peer.listAllPeers(function(list) {
           window.peerList = list;
           if (window.connTimeout) {
@@ -115,12 +121,13 @@ window.requestAnimationFrame(function () {
           }
           if (list[0]) {
             window.peerx = 0;
-            findMatch();
+            findMatch(); // Recursively find a peer until we succeed
           }
         });
       }
     }
   }
+  // Matchmaking button click handler
   document.querySelector(".find-match").onclick = function(e) {
     e.preventDefault();
     if (!window.connectionId)
@@ -129,20 +136,25 @@ window.requestAnimationFrame(function () {
 
     document.querySelector(".current-player").textContent = 'Finding a player...';
     peer.listAllPeers(function(list) {
+      // This gets all available peers, but the list is usually stagnant and contains many dead peers or occupied peers
       window.peerList = list;
       if (list[0])
-        window.peerx = 0;
+        window.peerx = 0; // The index of the opponent peer id to try
         findMatch();
     });
   };
 
+  // PeerJS webRTC wrapper
   var peer = new Peer({key: 'tu24ikh5mq0bpgb9'});
 
   // Guest
   if (window.location.hash) {
+    // This is a link to start a game
+    // Pulls the PeerID from the URL hash
     document.querySelector(".room-link").remove();
     var conn = peer.connect(window.location.hash.slice(1), {reliable: true});
     conn.on('open', function(){
+      // Connected and start the game!
       window.connection = conn;
       conn.send({connected: true});
       conn.on('data', handleData);
@@ -151,11 +163,13 @@ window.requestAnimationFrame(function () {
     // Host
     peer.on('open', function(id){
       window.connectionId = id;
+      // Generate a link to share so another player can directly connect
       document.querySelector(".room-input").value = 'http://instapainting.com/2x2048/index.html#' + id;
     });
 
     peer.on('connection', function(conn) {
       conn.on('open', function(){
+        // Connected and start the game!
         if (!window.inGame) {
           window.connection = conn;
 

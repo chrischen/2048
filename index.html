@@ -30,10 +30,6 @@
   <div class="container">
     <div class="heading">
       <h1 class="title">Two Player 2048 - 2x2048</h1>
-      <div class="scores-container">
-        <div class="blue-score-container score-container">0</div>
-        <div class="red-score-container score-container">0</div>
-      </div>
     </div>
     <br>
     <p style="font-size: 24px">Created by <a href="/">Instapainting.com</a> - turn any photo into a hand-painted oil painting for only $49.</p>
@@ -49,16 +45,30 @@
     (adsbygoogle = window.adsbygoogle || []).push({});
     </script>
     <p class="game-intro">
-      Join the numbers and get to the <strong>2048 tile!</strong>, or have the most points at the end!<br>
+      Join the numbers and get to the <strong>2048 tile!</strong>, or have the most points at the end when no moves are available!<br>
       <small>This is the two-player version.</small><br>
-      <small>IMPORTANT: This game only works on the latest versions of Firefox and Chrome browsers.</small>
+      <small>IMPORTANT: This game only works on the latest versions of most browsers except Safari.</small>
+    </p>
+
+    <p>
+      Full annotated source code available on <a href="https://github.com/chrischen/2x2048">Github</a>
+      <ul>
+        <li>The modified networking and matchmaking code is annotated and available in <a href="https://github.com/chrischen/2x2048/blob/master/js/application.js">application.js</a></li>
+        <li>The modified game logic to support two players is annotated and available in <a href="https://github.com/chrischen/2x2048/blob/master/js/game_manager.js">game_manager.js</a></li>
+        <li>Other files were lightly modified to support 2 players.</li>
+      </ul>
     </p>
 
     <div class="matchmaking-button"><a href="#" class="find-match btn">Find Random Opponent</a> or</div>
     <p><strong>Give this link to the other player:</strong></p>
     <div class="room-link"><input class="room-input" type="text" val="" /></div>
+    <div class="scores-container">
+      <div class="blue-score-container score-container">0</div>
+      <div class="red-score-container score-container">0</div>
+    </div>
 
     <div class="current-player">Waiting for other player...</div>
+
 
     <div class="game-container">
       <div class="game-message">
